@@ -148,6 +148,9 @@ void main (void)
     </script>
 
     <script>
+        var timer, delay = 5;
+        var drawFunction;
+        
         var StartRadCurrent = 0.0;
         var StartRad = new Object();
          
@@ -293,10 +296,24 @@ void main (void)
             var ctx = init();
             currentAngle = 0;
             incAngle = 0.2;
-            var f = function() { drawPicture(ctx) };
-            setInterval(f, 10);
+            drawFunction = function() { drawPicture(ctx) };
+            timer = setInterval(drawFunction, delay);
             framerate = new Framerate("framerate");
         }
+        
+        function pause(v)
+        {
+            if( timer != -1 )
+            {
+                clearInterval(timer);
+                timer = -1;
+            }
+        }
+        function run(v)
+        {
+            if( timer == -1 )
+                timer = setInterval(drawFunction, delay);
+        }        
     </script>
     <style type="text/css">
         canvas {
@@ -310,5 +327,7 @@ void main (void)
     </canvas>
     <div id="framerate"></div>
     <div id="console"></div>
+    <button onclick="pause()">Pause</button>
+    <button onclick="run()">Run</button>
   </body>
 </html>
