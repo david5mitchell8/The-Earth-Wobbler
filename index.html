@@ -148,16 +148,16 @@ void main (void)
     </script>
 
     <script>
-        var timer, delay = 5;
+        var timer, delay = 10;
         var drawFunction;
         
         var StartRadCurrent = 0.0;
         var StartRad = new Object();
          
-        StartRad.current = [ ]; //new Array();
-        StartRad.min = [ ]; //new Array();
-        StartRad.max = [ ]; //new Array();
-        StartRad.delta = [ ]; //new Array();
+        StartRad.current = [ ];
+        StartRad.min = [ ];
+        StartRad.max = [ ];
+        StartRad.delta = [ ];
          
         StartRad.current[0] = 0.0;
         StartRad.min[0] = 0.0;
@@ -261,7 +261,16 @@ void main (void)
             StartRadCurrent = StartRad.current[0];
         }
         
+        //var PI_DIV_180 = (3.141593 / 180);
+        var PI_DIV_180 = (Math.PI / 180);
+        function deg2rad(degrees)
+        {
+            return degrees * PI_DIV_180;
+        }
+        
         var light_z = 12.0;
+        var scale = 1.0;
+        var mov = 0.0;
         function drawPicture(ctx)
         {
             reshape(ctx);
@@ -272,13 +281,19 @@ void main (void)
             ctx.uniform3f(ctx.getUniformLocation(ctx.program, "LightPosition"), 0, 0, light_z);
             
             //light_z += 0.1;
-            
+            //scale = Math.sin(deg2Rad(currentAngle));
+            //scale = Math.cos(currentAngle/100);
                        
-            drawOne(ctx, currentAngle, 0, 0, 0, 1, earthTexture);
+            drawOne(ctx, currentAngle, Math.sin(mov), Math.cos(mov), Math.cos(mov)-mov, scale, earthTexture);
             ctx.flush();
             
             framerate.snapshot();
             
+            mov += 0.01;
+            
+            //if(mov > 1 )
+            //    mov = 0.0;
+                
             currentAngle += incAngle;
             if (currentAngle > 360)
                 currentAngle -= 360;
@@ -314,6 +329,13 @@ void main (void)
             if( timer == -1 )
                 timer = setInterval(drawFunction, delay);
         }        
+        function runPause(v)
+        {
+            if( timer == -1 )
+                run(timer);
+            else
+                pause(timer);
+        }        
     </script>
     <style type="text/css">
         canvas {
@@ -327,7 +349,6 @@ void main (void)
     </canvas>
     <div id="framerate"></div>
     <div id="console"></div>
-    <button onclick="pause()">Pause</button>
-    <button onclick="run()">Run</button>
+    <button onclick="runPause()">Run/Pause</button>
   </body>
 </html>
