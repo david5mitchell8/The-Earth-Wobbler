@@ -6,27 +6,7 @@
     <script src="J3DI.js"> </script>
     <script src="J3DIMath.js" type="text/javascript"> </script>
     
-    <script id="vshader" type="x-shader/x-vertex">
-/*   
-        uniform mat4 u_modelViewProjMatrix;
-        uniform mat4 u_normalMatrix;
-        uniform vec3 lightDir;
-
-        attribute vec3 vNormal;
-        attribute vec4 vTexCoord;
-        attribute vec4 vPosition;
-        
-        varying float v_Dot;
-        varying vec2 v_texCoord;
-        
-        void main()
-        {
-            gl_Position = u_modelViewProjMatrix * vPosition;
-            v_texCoord = vTexCoord.st;
-            vec4 transNormal = u_normalMatrix * vec4(vNormal,1);
-            v_Dot = max(dot(transNormal.xyz, lightDir), 0.0);
-        }
-*/        
+    <script id="vshader" type="x-shader/x-vertex">      
 
 uniform mat4 u_modelViewProjMatrix;
 uniform mat4 u_normalMatrix;
@@ -55,8 +35,8 @@ void main(void)
     float spec      = clamp(dot(reflectVec, viewVec), 0.0, 1.0);
     spec            = pow(spec, 16.0);
 
-    LightIntensity  = .9;//diffuseContribution * max(dot(lightVec, transNormal.xyz), 0.0)
-                      //+ specularContribution * spec;
+    LightIntensity  = diffuseContribution * max(dot(lightVec, transNormal.xyz), 0.0)
+                        + specularContribution * spec;
 
     v_texCoord = vTexCoord.st;
     
@@ -68,19 +48,6 @@ void main(void)
 #ifdef GL_ES
     precision mediump float;
 #endif
-/*    
-        uniform sampler2D sampler2d;
-
-        varying float v_Dot;
-        varying vec2 v_texCoord;
-        
-        void main()
-        {
-            vec4 color = texture2D(sampler2d,v_texCoord);
-            color += vec4(0.1,0.1,0.1,1);
-            gl_FragColor = vec4(color.xyz * v_Dot, color.a);
-        }
-*/
 
 // Constants
 const float C_PI    = 3.1415;
@@ -172,7 +139,7 @@ void main (void)
 
             gl.uniform3f(gl.getUniformLocation(gl.program, "LightPosition"), 0.0, 0.0, 6.0);
             gl.uniform1i(gl.getUniformLocation(gl.program, "WobbleTex"), 0);
-            gl.uniform2f(gl.getUniformLocation(gl.program, "Freq"), 2.0, 3.0);
+            gl.uniform2f(gl.getUniformLocation(gl.program, "Freq"), 0.01, 3.0);
             gl.uniform2f(gl.getUniformLocation(gl.program, "Amplitude"), 0.04, 0.05);
             gl.uniform1f(gl.getUniformLocation(gl.program, "StartRadCurrent"), StartRadCurrent);
 
@@ -261,16 +228,6 @@ void main (void)
             StartRadCurrent = StartRad.current[0];
         }
         
-        //var PI_DIV_180 = (3.141593 / 180);
-        var PI_DIV_180 = (Math.PI / 180);
-        function deg2rad(degrees)
-        {
-            return degrees * PI_DIV_180;
-        }
-        
-        var light_z = 12.0;
-        var scale = 1.0;
-        var mov = 0.0;
         function drawPicture(ctx)
         {
             reshape(ctx);
@@ -278,21 +235,12 @@ void main (void)
             
             animateParameter();
             ctx.uniform1f(ctx.getUniformLocation(ctx.program, "StartRadCurrent"), StartRadCurrent);
-            ctx.uniform3f(ctx.getUniformLocation(ctx.program, "LightPosition"), 0, 0, light_z);
-            
-            //light_z += 0.1;
-            //scale = Math.sin(deg2Rad(currentAngle));
-            //scale = Math.cos(currentAngle/100);
-                       
-            drawOne(ctx, currentAngle, Math.sin(mov), Math.cos(mov), Math.cos(mov)-mov, scale, earthTexture);
+            ctx.uniform3f(ctx.getUniformLocation(ctx.program, "LightPosition"), 0, 0, 10);
+                                   
+            drawOne(ctx, currentAngle, 0, 0, 0, 1, earthTexture);
             ctx.flush();
             
             framerate.snapshot();
-            
-            mov += 0.01;
-            
-            //if(mov > 1 )
-            //    mov = 0.0;
                 
             currentAngle += incAngle;
             if (currentAngle > 360)
